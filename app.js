@@ -11,7 +11,7 @@ app.use(cookieParser())
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use("/test", (req, res) => {
+app.use("/", (req, res) => {
   res.send("Hello world!");
 });
 

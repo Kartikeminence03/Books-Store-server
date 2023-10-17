@@ -10,17 +10,9 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-      price: {
+    price: {
         type: Number,
         required: true,
-    },
-    //   category: {
-    //     type: String,
-    //     required: true,
-    // },
-    totalrating: {
-        type: String,
-        default: 0,
     },
 }, { timestamps: true }
 );

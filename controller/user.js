@@ -13,7 +13,7 @@ const getAllUsers = async (req,res)=>{
 };
 
 const createUser = asyncHandler(async(req,res)=>{
-  console.log(req.body);
+  // console.log(req.body);
         const email = req.body.email;
         const password =  req.body.password;
         const findUser = await User.findOne({email});

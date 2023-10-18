@@ -3,6 +3,7 @@ const User = require('../models/user');
 const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
 const asyncHandler = require("express-async-handler");
+const uniqid = require('uniqid'); 
 const validateMongoDbId = require("../utils/validateMongodbId");
 const jwt = require('jsonwebtoken');
 const { generateRefreshToken } = require('../config/refreshtoken');
@@ -94,7 +95,6 @@ const userCart = asyncHandler(async (req, res) => {
       products.push(object);
     }
 
-    console.log(products);
     let cartTotal = 0;
     for (let i = 0; i < products.length; i++) {
       cartTotal = cartTotal + products[i].price * products[i].count;
@@ -124,8 +124,64 @@ const getUserCart = asyncHandler(async (req, res) => {
   }
 });
 
+const emptyCart = asyncHandler(async(req,res)=>{
+  const {_id } = req.user;
+  validateMongoDbId(_id);
+  try {
+    const userId = await User.findById(_id);
+    const cart = await Cart.findOneAndRemove({orderby: userId._id})
+    res.json(cart)
+  } catch (error) {
+    throw new Error(error)
+  }
+})
+
 
 //Orders
+
+const createOrder = asyncHandler(async(req,res)=>{
+  const { COD } = req.body;
+  const { _id } = req.user;
+  validateMongoDbId(_id)
+  try {
+    if (!COD) throw new Error("Create cash order failed");
+    const user = await User.findById(_id);
+    let userCart = await Cart.findOne({ orderby: user._id });
+    let finalAmout = 0;
+    if (userCart) {
+      finalAmout = userCart;
+    } else {
+      finalAmout = userCart.cartTotal;
+    }
+
+    let newOrder = await new Order({
+      products: userCart.products,
+      paymentIntent: {
+        id: uniqid(),
+        method: "COD",
+        amount: finalAmout,
+        status: "Cash on Delivery",
+        created: Date.now(),
+        currency: "usd",
+      },
+      orderby: user._id,
+      orderStatus: "Cash on Delivery",
+    }).save();
+    let update = userCart.products.map((item) => {
+      return {
+        updateOne: {
+          filter: { _id: item.product._id },
+          update: { $inc: { quantity: -item.count, sold: +item.count } },
+        },
+      };
+    });
+    console.log(update);
+    const updated = await Product.bulkWrite(update, {});
+    res.json({ message: "success" });
+  } catch (error) {
+    throw new Error(error);
+  }
+})
 
 module.exports = {
     createUser,
@@ -134,4 +190,6 @@ module.exports = {
     userCart,
     getWishlist,
     getUserCart,
+    emptyCart,
+    createOrder,
 };

@@ -62,6 +62,16 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
     }
 });
 
+const getWishlist = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  try {
+    const findUser = await User.findById(_id).populate("wishlist");
+    res.json(findUser);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 // User cart api
 const userCart = asyncHandler(async (req, res) => {
   const { cart } = req.body;
@@ -100,15 +110,20 @@ const userCart = asyncHandler(async (req, res) => {
   }
 });
 
-const getWishlist = asyncHandler(async (req, res) => {
+
+const getUserCart = asyncHandler(async (req, res) => {
   const { _id } = req.user;
+  validateMongoDbId(_id);
   try {
-    const findUser = await User.findById(_id).populate("wishlist");
-    res.json(findUser);
+    const cart = await Cart.findOne({ orderby: _id }).populate(
+      "products.product"
+    );
+    res.json(cart);
   } catch (error) {
     throw new Error(error);
   }
 });
+
 
 //Orders
 
@@ -117,5 +132,6 @@ module.exports = {
     loginUserCtrl,
     getAllUsers,
     userCart,
-    getWishlist
+    getWishlist,
+    getUserCart,
 };

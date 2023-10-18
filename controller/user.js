@@ -3,6 +3,7 @@ const User = require('../models/user');
 const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
 const asyncHandler = require("express-async-handler");
+const validateMongoDbId = require("../utils/validateMongodbId");
 const jwt = require('jsonwebtoken');
 const { generateRefreshToken } = require('../config/refreshtoken');
 
@@ -61,10 +62,11 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
     }
 });
 
+// User cart api
 const userCart = asyncHandler(async (req, res) => {
   const { cart } = req.body;
   const { _id } = req.user;
-  // validateMongoDbId(_id);
+  validateMongoDbId(_id);
   try {
     let products = [];
     const user = await User.findById(_id);
@@ -98,9 +100,22 @@ const userCart = asyncHandler(async (req, res) => {
   }
 });
 
+const getWishlist = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
+  try {
+    const findUser = await User.findById(_id).populate("wishlist");
+    res.json(findUser);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
+//Orders
+
 module.exports = {
     createUser,
     loginUserCtrl,
     getAllUsers,
-    userCart
+    userCart,
+    getWishlist
 };

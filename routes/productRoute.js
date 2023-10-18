@@ -4,14 +4,18 @@ const {
     getaProduct,
     updateProduct,
     getAllProduct,
-    deleteProduct
+    deleteProduct,
+    addToWishlist,
 } = require("../controller/productCtrl.js");
+const authMiddleware = require('../middleware/authMiddeware.js');
 const router = express.Router();
 
-router.post("/", createProduct);
+router.post("/", authMiddleware, createProduct);
 router.get("/:id", getaProduct);
+router.put("/wishlist", authMiddleware, addToWishlist)
 router.put("/:id", updateProduct);
 router.get('/',getAllProduct);
-router.delete('/:id',deleteProduct)
+router.delete('/:id',deleteProduct);
+
 
 module.exports = router;

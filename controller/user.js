@@ -1,10 +1,11 @@
+const { generateToken } = require('../config/jwtToken');
 const User = require('../models/user');
 const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
 const asyncHandler = require("express-async-handler");
 const jwt = require('jsonwebtoken');
 const { generateRefreshToken } = require('../config/refreshtoken');
-const { generateToken } = require('../config/jwtToken');
+
 
 let users = User;
 
@@ -63,7 +64,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
 const userCart = asyncHandler(async (req, res) => {
   const { cart } = req.body;
   const { _id } = req.user;
-  validateMongoDbId(_id);
+  // validateMongoDbId(_id);
   try {
     let products = [];
     const user = await User.findById(_id);
@@ -80,6 +81,8 @@ const userCart = asyncHandler(async (req, res) => {
       object.price = getPrice.price;
       products.push(object);
     }
+
+    console.log(products);
     let cartTotal = 0;
     for (let i = 0; i < products.length; i++) {
       cartTotal = cartTotal + products[i].price * products[i].count;

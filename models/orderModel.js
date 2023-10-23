@@ -16,6 +16,7 @@ const orderSchema = new mongoose.Schema({
       default: "Not Processed",
       enum: [
         "Not Processed",
+        "Google Pay UPI",
         "Processing",
         "Dispatched",
         "Cancelled",

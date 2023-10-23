@@ -4,6 +4,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const User = require('../models/user');
 const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
+const Order = require('../models/orderModel')
 const asyncHandler = require("express-async-handler");
 const uniqid = require('uniqid'); 
 const validateMongoDbId = require("../utils/validateMongodbId");
@@ -116,20 +117,20 @@ const userCart = asyncHandler(async (req, res) => {
 
 const removeUserCart = asyncHandler(async (req, res)=>{
   try {
-    const { UserCart } = req.body;
+    const { productIdCart } = req.body;
     const { _id } = req.user;
     validateMongoDbId(_id);
 
     const user = await User.findById(_id);
 
-    const product = await Product.findById(new ObjectId(UserCart).toString());
+    const product = await Product.findById(new ObjectId(productIdCart).toString());
     if(!product){
       return res
       .status(404)
       .json({status: false, message: "Products Not Found"})
     }
 
-    user.cart = user.cart.filter((item) => !item.equals(UserCart));
+    user.cart = user.cart.filter((item) => !item.equals(productIdCart));
     await user.save();
     
   } catch (error) {
@@ -138,47 +139,11 @@ const removeUserCart = asyncHandler(async (req, res)=>{
 })
 
 
-// const userCart = asyncHandler(async (req, res) => {
-//   const { cart } = req.body;
-//   const { _id } = req.user;
-//   validateMongoDbId(_id);
-//   try {
-//     let products = [];
-//     const user = await User.findById(_id);
-//     // check if user already have product in cart
-//     const alreadyExistCart = await Cart.findOne({ orderby: user._id });
-//     if (alreadyExistCart) {
-//       await Cart.deleteOne({ _id: alreadyExistCart._id });
-//     }
-//     for (let i = 0; i < cart.length; i++) {
-//       let object = {};
-//       object.product = cart[i]._id;
-//       object.count = cart[i].count;
-//       let getPrice = await Product.findById(cart[i]._id).select("price").exec();
-//       object.price = getPrice.price;
-//       products.push(object);
-//     }
-//     let cartTotal = 0;
-//     for (let i = 0; i < products.length; i++) {
-//       cartTotal = cartTotal + products[i].price * products[i].count;
-//     }
-//     let newCart = await new Cart({
-//       products,
-//       cartTotal,
-//       orderby: user?._id,
-//     }).save();
-//     res.json(newCart);
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// });
-
-
 const getUserCart = asyncHandler(async (req, res) => {
   const { _id } = req.user;
   validateMongoDbId(_id);
   try {
-    const cart = await Cart.findOne({ orderby: _id }).populate(
+    const cart = await Cart.find({ orderby: _id }).populate(
       "products.product"
     );
     res.json(cart);
@@ -203,11 +168,11 @@ const emptyCart = asyncHandler(async(req,res)=>{
 //Orders
 
 const createOrder = asyncHandler(async(req,res)=>{
-  const { COD } = req.body;
+  const { UPI } = req.body;
   const { _id } = req.user;
   validateMongoDbId(_id)
   try {
-    if (!COD) throw new Error("Create cash order failed");
+    if (!UPI) throw new Error("Create cash order failed");
     const user = await User.findById(_id);
     let userCart = await Cart.findOne({ orderby: user._id });
     let finalAmout = 0;
@@ -221,14 +186,13 @@ const createOrder = asyncHandler(async(req,res)=>{
       products: userCart.products,
       paymentIntent: {
         id: uniqid(),
-        method: "COD",
+        method: "UPI",
         amount: finalAmout,
-        status: "Cash on Delivery",
         created: Date.now(),
         currency: "usd",
       },
       orderby: user._id,
-      orderStatus: "Cash on Delivery",
+      orderStatus: "Google Pay UPI",
     }).save();
     let update = userCart.products.map((item) => {
       return {
@@ -244,7 +208,20 @@ const createOrder = asyncHandler(async(req,res)=>{
   } catch (error) {
     throw new Error(error);
   }
-})
+});
+
+
+const getAllOrders = asyncHandler(async (req, res) => {
+  try {
+    const alluserorders = await Order.find()
+      .populate("products.product")
+      .populate("orderby")
+      .exec();
+    res.json(alluserorders);
+  } catch (error) {
+    throw new Error(error);
+  }
+});
 
 module.exports = {
     createUser,
@@ -256,4 +233,5 @@ module.exports = {
     emptyCart,
     createOrder,
     removeUserCart,
+    getAllOrders,
 };

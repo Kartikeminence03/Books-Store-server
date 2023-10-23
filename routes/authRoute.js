@@ -10,6 +10,7 @@ const {
     emptyCart,
     createOrder,
     removeUserCart,
+    getAllOrders,
 } = require('../controller/user.js');
 const authMiddleware = require('../middleware/authMiddeware.js');
 
@@ -18,6 +19,7 @@ router.get("/getall", getAllUsers)
 router.post("/login", loginUserCtrl);
 router.get("/wishlist", authMiddleware, getWishlist);
 router.post("/cart/cash-order", authMiddleware, createOrder);
+router.get("/getallorders", authMiddleware, getAllOrders);
 router.get("/cart", authMiddleware, getUserCart);
 router.post("/cart", authMiddleware, userCart);
 router.post('/remove-cart', authMiddleware, removeUserCart)

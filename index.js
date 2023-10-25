@@ -4,6 +4,7 @@ const app = express();
 const dotenv = require('dotenv').config()
 const authRouter = require("./routes/authRoute.js");
 const productRouter = require('./routes/productRoute.js');
+const cartRoute = require('./routes/cartRoute');
 const bodyParser = require('body-parser');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const cookieParser = require("cookie-parser");
@@ -19,6 +20,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use('/api/user', authRouter);
 app.use('/api/product', productRouter);
+app.use('/api/cart', cartRoute);
 
 app.use(notFound);
 app.use(errorHandler);

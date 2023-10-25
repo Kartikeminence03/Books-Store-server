@@ -28,17 +28,12 @@ var userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    cart: {
-      type: Array,
-      default: [],
-    },
-    address: {
-      type: String,
-    },
-    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }],
-    refreshToken: {
-      type: String,
-    },
+    cart: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,

@@ -41,6 +41,7 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
     // check if user exists or not
     const findUser = await User.findOne({ email })
     .populate({ path: "cart", model: "Product" });
+    // console.log(findUser);
     if (findUser && (await findUser.isPasswordMatched(password))) {
       const refreshToken = await generateRefreshToken(findUser?._id);
       const updateuser = await User.findByIdAndUpdate(
@@ -117,28 +118,6 @@ const userCart = asyncHandler(async (req, res) => {
 
 // Remove User Cart
 
-const removeUserCart = asyncHandler(async (req, res)=>{
-  try {
-    const { productIdCart } = req.body;
-    const { _id } = req.user;
-    validateMongoDbId(_id);
-
-    const user = await User.findById(_id);
-
-    const product = await Product.findById(new ObjectId(productIdCart).toString());
-    if(!product){
-      return res
-      .status(404)
-      .json({status: false, message: "Products Not Found"})
-    }
-
-    user.cart = user.cart.filter((item) => !item.equals(productIdCart));
-    await user.save();
-    
-  } catch (error) {
-    throw new Error(error)
-  }
-})
 
 
 const getUserCart = asyncHandler(async (req, res) => {
@@ -234,6 +213,5 @@ module.exports = {
     getUserCart,
     emptyCart,
     createOrder,
-    removeUserCart,
     getAllOrders,
 };

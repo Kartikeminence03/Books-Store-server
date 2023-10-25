@@ -9,7 +9,6 @@ const {
     getUserCart,
     emptyCart,
     createOrder,
-    removeUserCart,
     getAllOrders,
 } = require('../controller/user.js');
 const authMiddleware = require('../middleware/authMiddeware.js');
@@ -22,7 +21,6 @@ router.post("/cart/cash-order", authMiddleware, createOrder);
 router.get("/getallorders", authMiddleware, getAllOrders);
 router.get("/cart", authMiddleware, getUserCart);
 router.post("/cart", authMiddleware, userCart);
-router.post('/remove-cart', authMiddleware, removeUserCart)
 router.delete("/empty-cart", authMiddleware, emptyCart)
 
 module.exports = router; 

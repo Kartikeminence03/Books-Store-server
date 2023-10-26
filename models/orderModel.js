@@ -1,27 +1,27 @@
 const mongoose = require('mongoose');
 
-const orderSchema = new mongoose.Schema({
+const orderSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     products: [
       {
-        product: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-        },
-        count: Number,
+        title: String,
+        description: String,
+        price: Number,
       },
     ],
-    paymentIntent: {},
+    totalAmount: Number,
+    orderDate: {
+      type: Date,
+      default: Date.now,
+    },
     orderStatus: {
       type: String,
-      default: "Not Processed",
-      enum: [
-        "Not Processed",
-        "Google Pay UPI",
-        "Processing",
-        "Dispatched",
-        "Cancelled",
-        "Delivered",
-      ],
+      enum: ["pending", "success", "failed"],
+      default: "pending",
     },
     orderby: {
       type: mongoose.Schema.Types.ObjectId,

@@ -6,10 +6,10 @@ const Product = require('../models/productModel');
 const Cart = require('../models/cartModel');
 const Order = require('../models/orderModel')
 const asyncHandler = require("express-async-handler");
-const uniqid = require('uniqid'); 
 const validateMongoDbId = require("../utils/validateMongodbId");
 const jwt = require('jsonwebtoken');
 const { generateRefreshToken } = require('../config/refreshtoken');
+const Payment = require('../models/paymentModel');
 
 
 let users = User;
@@ -149,43 +149,29 @@ const emptyCart = asyncHandler(async(req,res)=>{
 //Orders
 
 const createOrder = asyncHandler(async(req,res)=>{
-  const { UPI } = req.body;
-  const { _id } = req.user;
-  validateMongoDbId(_id)
   try {
-    if (!UPI) throw new Error("Create cash order failed");
+    const { products, totalAmount } = req.body;
+    const { _id } = req.user;
+    const { id } = req.payment
+    validateMongoDbId(_id)
     const user = await User.findById(_id);
-    let userCart = await Cart.findOne({ orderby: user._id });
-    let finalAmout = 0;
-    if (userCart) {
-      finalAmout = userCart;
-    } else {
-      finalAmout = userCart.cartTotal;
-    }
+    const payment = await Payment.findById(id)
 
     let newOrder = await new Order({
-      products: userCart.products,
-      paymentIntent: {
-        id: uniqid(),
-        method: "UPI",
-        amount: finalAmout,
-        created: Date.now(),
-        currency: "usd",
-      },
-      orderby: user._id,
-      orderStatus: "Google Pay UPI",
+      products,
+      user: user._id,
+      totalAmount,
+      payment,
     }).save();
-    let update = userCart.products.map((item) => {
-      return {
-        updateOne: {
-          filter: { _id: item.product._id },
-          update: { $inc: { quantity: -item.count, sold: +item.count } },
-        },
-      };
+
+    user.cart = [];
+    await user.save();
+
+
+    res.json({
+      status: true,
+      message: "order placed successfully",
     });
-    console.log(update);
-    const updated = await Product.bulkWrite(update, {});
-    res.json({ message: "success" });
   } catch (error) {
     throw new Error(error);
   }

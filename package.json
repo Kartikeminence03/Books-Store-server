@@ -25,6 +25,7 @@
     "nodemailer": "^6.9.6",
     "razorpay": "^2.9.2",
     "sharp": "^0.32.6",
+    "shortid": "^2.2.16",
     "slugify": "^1.6.6",
     "uniqid": "^5.4.0"
   },

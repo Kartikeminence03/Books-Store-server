@@ -17,7 +17,7 @@ router.post("/register", createUser);
 router.get("/getall", getAllUsers)
 router.post("/login", loginUserCtrl);
 router.get("/wishlist", authMiddleware, getWishlist);
-router.post("/cart/cash-order", authMiddleware, createOrder);
+// router.post("/cart/cash-order", authMiddleware, createOrder);
 router.get("/getallorders", authMiddleware, getAllOrders);
 router.get("/cart", authMiddleware, getUserCart);
 router.post("/cart", authMiddleware, userCart);

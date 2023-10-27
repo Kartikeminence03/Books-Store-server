@@ -23,10 +23,6 @@ const orderSchema = new mongoose.Schema(
       enum: ["pending", "success", "failed"],
       default: "pending",
     },
-    orderby: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
   },
   {
     timestamps: true,

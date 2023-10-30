@@ -1,8 +1,8 @@
+const Razorpay = require("razorpay");
 const User = require("../models/user");
 const Order = require("../models/orderModel");
 const asyncHandler = require("express-async-handler");
 const validateMongoDbId = require("../utils/validateMongodbId");
-const Razorpay = require("razorpay");
 
 const instance = new Razorpay({
     key_id: process.env.RAZORPAY_AIP_KEY,
@@ -10,13 +10,17 @@ const instance = new Razorpay({
 });
 
 const createOrder = asyncHandler(async(req,res)=>{
+  const { products, totalAmount } = req.body;
+      const { _id } = req.user;
     const options = {
-        amount: Number(req.body.amount * 100),  // amount in the smallest currency unit
+         amount: Number(totalAmount*100),//Number(req.body.amount * 100),  // amount in the smallest currency unit
         currency: "INR",
       }
+
+      console.log(req.body.amount);
+
+      console.log(_id);
     try {
-      const { products, totalAmount } = req.body;
-      const { _id } = req.user;
       validateMongoDbId(_id)
       const user = await User.findById(_id);
       if (!user) {
@@ -24,13 +28,16 @@ const createOrder = asyncHandler(async(req,res)=>{
       }
 
       const order = await instance.orders.create(options);
+      // console.log(order,"=======>>>>>>>>>>>>>");
+      // console.log(products);
   
       let newOrder = new Order({
-        products,
         user: user._id,
         totalAmount,
-        payment,
+        products,
       });
+
+      console.log(newOrder,"========........<<<<<<<");
   
       user.cart = [];
       await user.save();

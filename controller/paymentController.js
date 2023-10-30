@@ -28,13 +28,14 @@ const paymentVerification = asyncHandler(async (req, res) => {
   const { order_id, razorpay_order_id, razorpay_payment_id, razorpay_signature } =
     req.body;
 
-    // console.log(razorpay_signature);
+    // console.log(order_id);
 
-    // console.log(razorpay_order_id," = ", razorpay_payment_id, " = ", razorpay_signature);
+    console.log(razorpay_order_id," = ", razorpay_payment_id, " = ", razorpay_signature);
 
   // const body = razorpay_order_id + "|" + razorpay_payment_id;
 
   const expectedSignature = crypto
+  // .createHmac("sha256", process.env.RAZORPAY_APT_SECRET)
     .createHmac("sha256",razorpay_order_id + "|" + razorpay_payment_id, process.env.RAZORPAY_APT_SECRET)
     // .update(body.toString())
     .digest("hex");
@@ -51,7 +52,7 @@ const paymentVerification = asyncHandler(async (req, res) => {
 
   // console.log(!isAuthentic);
 
-  if (!isAuthentic) {
+  if (isAuthentic) {
     // Database comes here
 
     await Payment.create({

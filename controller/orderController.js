@@ -13,13 +13,13 @@ const createOrder = asyncHandler(async(req,res)=>{
   const { products, totalAmount } = req.body;
       const { _id } = req.user;
     const options = {
-         amount: Number(totalAmount*100),//Number(req.body.amount * 100),  // amount in the smallest currency unit
+         amount: Number(totalAmount*100),
         currency: "INR",
       }
 
-      console.log(req.body.amount);
+      // console.log(req.body.amount);
 
-      console.log(_id);
+      // console.log(_id);
     try {
       validateMongoDbId(_id)
       const user = await User.findById(_id);
@@ -36,14 +36,10 @@ const createOrder = asyncHandler(async(req,res)=>{
         totalAmount,
         products,
       });
-
-      console.log(newOrder,"========........<<<<<<<");
   
       user.cart = [];
       await user.save();
       await newOrder.save();
-
-      console.log(newOrder);
   
   
       res.json({
@@ -58,7 +54,25 @@ const createOrder = asyncHandler(async(req,res)=>{
     }
 });
 
+
+const getOrder = asyncHandler(async(req,res)=>{
+  try {
+    const { _id } = req.user;
+
+    const orders = await Order.find({ user: _id });
+
+    res
+      .status(200)
+      .json({ status: true, message: "orders get successfully", orders });
+  } catch (error) {
+    return res
+    .status(400)
+    .json({ status: false, message: `${error}` })
+  }
+})
+
 module.exports = {
-    createOrder
+    createOrder,
+    getOrder
 }
   

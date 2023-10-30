@@ -33,12 +33,6 @@ app.use("/api/order", orderRoute)
 
 app.use(notFound);
 app.use(errorHandler);
-
-// const instance = new Razorpay({
-//     key_id: process.env.RAZORPAY_AIP_KEY,
-//     key_secret: process.env.RAZORPAY_AIP_SECRET,
-//   });
-// console.log(instance);
 app.listen(process.env.PORT, () => {
   console.log(`Server is running at PORT ${process.env.PORT}`);
 });

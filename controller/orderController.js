@@ -16,10 +16,6 @@ const createOrder = asyncHandler(async(req,res)=>{
          amount: Number(totalAmount*100),
         currency: "INR",
       }
-
-      // console.log(req.body.amount);
-
-      // console.log(_id);
     try {
       validateMongoDbId(_id)
       const user = await User.findById(_id);
@@ -28,8 +24,6 @@ const createOrder = asyncHandler(async(req,res)=>{
       }
 
       const order = await instance.orders.create(options);
-      // console.log(order,"=======>>>>>>>>>>>>>");
-      // console.log(products);
   
       let newOrder = new Order({
         user: user._id,

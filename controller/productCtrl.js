@@ -67,43 +67,6 @@ const getAllProduct = asyncHandler(async(req,res)=>{
 });
 
 
-//Add to wish list
-const addToWishlist = asyncHandler(async (req, res) => {
-  const { _id } = req.user;
-  const { prodId } = req.body;
-  try {
-    const userId = await User.findById(_id);
-    const alreadyadded = userId.wishlist.find((id) => id.toString() === prodId);
-    // console.log(userId);
-    if (alreadyadded) {
-      let user = await User.findByIdAndUpdate(
-        _id,
-        {
-          $pull: { wishlist: prodId },
-        },
-        {
-          new: true,
-        }
-      );
-      res.json(user);
-    } else {
-      let user = await User.findByIdAndUpdate(
-        _id,
-        {
-          $push: { wishlist: prodId },
-        },
-        {
-          new: true,
-        }
-      );
-      res.json(user);
-    }
-  } catch (error) {
-    throw new Error(error);
-  }
-});
-
-
 
 module.exports = {
     createProduct,
@@ -111,5 +74,4 @@ module.exports = {
     updateProduct,
     getAllProduct,
     deleteProduct,
-    addToWishlist,
 }
